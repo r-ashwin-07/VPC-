@@ -1,0 +1,67 @@
+1. Create VPC
+    AWS Console → VPC → Create VPC
+    Choose VPC only
+    CIDR block: 10.0.0.0/16
+    Enable DNS hostname & DNS resolution
+    Create VPC
+
+2. Create Subnets
+    One as Public Subnet and another is Private Subnet
+
+3. Create Internet Gateway (IGW)
+    VPC → Internet Gateway → Create
+    Attach IGW to the created VPC
+
+4. Create Route Tables
+    1) Public Route Table
+       Create Route Table → Attach to VPC
+       Add Route: Destination: 0.0.0.0/0
+       Target: Internet Gateway
+       Associate with Public Subnet
+    2) Private Route Table
+       Create Route Table → Attach to VPC
+       Associate with Private Subnet
+
+5. Create NAT Gateway
+    Create NAT Gateway in Public Subnet
+    Allocate Elastic IP
+    Create NAT Gateway
+    NAT Gateway allows private subnet instances to access the internet securely.
+
+6. Update Private Route Table
+    Edit Private Route Table
+    Add Route: Destination: 0.0.0.0/0
+    Target: NAT Gateway
+
+7. Create Security Groups
+    1) Public EC2 Security Group
+       Allow: SSH (22) – Anywhere
+       HTTP (80) – Anywhere
+    2) Private EC2 Security Group
+       Allow: SSH (22) – Only from Public Subnet SG
+       Security Groups act as virtual firewalls for instances.
+
+8. Launch EC2 Instances
+    1) Public EC2
+       Launch EC2 in Public Subnet
+       Auto-assign Public IP: Enabled
+       Attach Public SG
+    2) Private EC2
+       Launch EC2 in Private Subnet
+        No Public IP
+        Attach Private SG
+
+9. Verification
+    SSH into Public EC2
+    From Public EC2, SSH into Private EC2 
+    Create file in public instance : Eg: mkdir "file.pem"
+    Edit the file with private instance pem key Eg: vi "file.pem"
+    Change the file permission : chmod -R 400 "file.pem"
+    Now using ssh -i "filename.pem"(file name) ec2-user@private instance private ip
+    From Private EC2, verify internet access using: ping google.com
+
+10. Architecture Outcome
+     Public EC2 → Accessible from internet
+     Private EC2 → No direct internet access
+     Secure outbound internet via NAT Gateway
+     Proper network isolation using subnets and route tables
